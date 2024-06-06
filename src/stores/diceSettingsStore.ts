@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { Dice } from '@/models/addedDice'
+import { Dice, range } from '@/models/addedDice'
 
 export type Dis_AdvantageRoll = "NORMAL" | "ADVANTAGE" | "DISADVANTAGE"
 
@@ -43,6 +43,26 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   const getMinHeroDice = computed<number>(() => getHeroDice.value.sides[0])
   const getMaxHeroDice = computed<number>(() => getHeroDice.value.sides.slice(-1)[0])
 
+  const totalPossibilities = computed(() => {
+    return getHeroDice.value.sides.length
+      * Math.pow(getNormalDice.value.sides.length, d6Count.value)
+  })
+
+  const getPossibleRangeValues = computed<number[]>(() => {
+    console.log({
+      d6Count: d6Count.value,
+      getMinHeroDice: getMinHeroDice.value,
+      getMaxHeroDice: getMaxHeroDice.value,
+      getMinNormalDice: getMinNormalDice.value,
+      getMaxNormalDice: getMaxNormalDice.value,
+    })
+
+    const minimum = getMinHeroDice.value + (d6Count.value * getMinNormalDice.value)
+    const maximum = getMaxHeroDice.value + (d6Count.value * getMaxNormalDice.value)
+
+    return range(maximum + 1 - minimum, minimum)
+  })
+
   const getNormalDiceCombinationNextUp = (perviousCombinations: Map<number, number>) => {
     const nextCombinations = new Map<number, number>()
 
@@ -70,6 +90,39 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     return diceCombinations
   })
 
+  const getCombinedDiceCombinations = computed(() => {
+    const diceCombinations = new Map<number, number>(
+      getPossibleRangeValues.value.map((possibleValue) => [possibleValue, 0]))
+
+
+
+    //ToDo add (dis)advantage
+
+
+
+    for (const heroDie of getHeroDiceSides.value) {
+      for (const [normalDices, timesPossible] of getNormalDiceCombinations.value) {
+        const totalRolled = heroDie + normalDices
+        diceCombinations.set(totalRolled, (diceCombinations.get(totalRolled) || 0) + timesPossible)
+      }
+    }
+
+    return diceCombinations
+  })
+
+  const getCombinedDiceCombinationsAccumulatedOver = computed(() => {
+    const diceCombinationsOver = new Map<number, number>(
+      getPossibleRangeValues.value.map((possibleValue) => [possibleValue, 0]))
+
+    let accumulated = 0
+
+    for (const [normalDices, timesPossible] of [...getCombinedDiceCombinations.value].sort((a, b) => b[0] - a[0])) {
+      accumulated += timesPossible
+      diceCombinationsOver.set(normalDices, + accumulated)
+    }
+
+    return diceCombinationsOver
+  })
 
   return {
     dis_advantageRoll, setAdvantageRoll,
@@ -77,6 +130,6 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     dices,
     normalDiceKind, getNormalDice, getNormalDiceSides, getMinNormalDice, getMaxNormalDice,
     heroDiceKind, getHeroDice, getHeroDiceSides, getMinHeroDice, getMaxHeroDice,
-    getNormalDiceCombinations
+    totalPossibilities, getPossibleRangeValues, getNormalDiceCombinations, combinationsTargetValue: getCombinedDiceCombinations, getCombinedDiceCombinationsAccumulatedOver
   }
 })

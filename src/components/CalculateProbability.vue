@@ -3,24 +3,38 @@
         {{ diceSettings.getHeroDice }}
         {{ diceSettings.getNormalDice }}
     </p>
-    <p> {{ totalPossibilities }} </p>
-    <p> {{ getPossibleRangeValues }} </p>
+    <p> {{ diceSettings.totalPossibilities }} </p>
+    <p> {{ diceSettings.getPossibleRangeValues }} </p>
     <table>
         <tr>
             <th>#</th>
             <th>Count</th>
             <th>%</th>
             <th class="tableBar">Bar</th>
+            <th>acc %</th>
+            <th class="tableBar">accumulated</th>
         </tr>
-        <tr v-for="targetValue of getPossibleRangeValues" :key="targetValue">
+        <tr v-for="[targetValue, combinationsValue] of diceSettings.combinationsTargetValue" :key="targetValue">
             <td>{{ targetValue }}</td>
-            <td>{{ calculatePercentagePerNumber(targetValue) }}</td>
-            <td>{{ calculatePercentagePerNumber(targetValue).value / totalPossibilities * 100 }}</td>
-            <!-- <td>{{ Number(calculatePercentagePerNumber(targetValue).value /
-                totalPossibilities).toLocaleString(undefined, { style: 'percent', minimumFractionDigits:2}) }}</td> -->
+            <td>{{ combinationsValue }}</td>
+            <!-- <td>{{ combinationsValue / diceSettings.totalPossibilities * 100 }}</td> -->
+            <td>{{ Number(combinationsValue / diceSettings.totalPossibilities).toLocaleString(undefined, {
+                style:
+                    'percent', minimumFractionDigits: 2
+            }) }}</td>
             <td>
                 <div class="diceBar"
-                    :style="{ width: calculatePercentagePerNumber(targetValue).value / totalPossibilities * 2000 + 'px' }">
+                    :style="{ width: combinationsValue / diceSettings.totalPossibilities * 400 * 5 + 'px' }">
+                </div>
+            </td>
+            <td>{{ Number((diceSettings.getCombinedDiceCombinationsAccumulatedOver.get(targetValue) || 0) /
+                diceSettings.totalPossibilities).toLocaleString(undefined, {
+                    style: 'percent', minimumFractionDigits: 2
+                })
+                }}</td>
+            <td>
+                <div class="diceBar"
+                    :style="{ width: (diceSettings.getCombinedDiceCombinationsAccumulatedOver.get(targetValue) || 0) / diceSettings.totalPossibilities * 400 + 'px' }">
                 </div>
             </td>
         </tr>
@@ -29,75 +43,10 @@
 
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useDiceSettingsStore } from "@/stores/diceSettingsStore";
-import { range } from "@/models/addedDice";
 
 const diceSettings = useDiceSettingsStore()
 
-const totalPossibilities = computed(() => {
-    return diceSettings.getHeroDice.sides.length
-        * Math.pow(diceSettings.getNormalDice.sides.length, diceSettings.d6Count)
-})
-
-const getPossibleRangeValues = computed<number[]>(() => {
-    console.log({
-        d6Count: diceSettings.d6Count,
-        getMinHeroDice: diceSettings.getMinHeroDice,
-        getMaxHeroDice: diceSettings.getMaxHeroDice,
-        getMinNormalDice: diceSettings.getMinNormalDice,
-        getMaxNormalDice: diceSettings.getMaxNormalDice,
-    })
-
-    const minimum = diceSettings.getMinHeroDice + (diceSettings.d6Count * diceSettings.getMinNormalDice)
-    const maximum = diceSettings.getMaxHeroDice + (diceSettings.d6Count * diceSettings.getMaxNormalDice)
-
-    console.log({
-        minimum,
-        maximum,
-    })
-
-    return range(maximum + 1 - minimum, minimum)
-})
-
-const getPossibilitiesReachValueNormalDice = computed(() => (target: number, diceCount: number) => {
-    let possibilities = 0;
-
-    if (diceCount === diceSettings.d6Count) {
-        console.log(`Calculating ${target} for ${diceCount}`)
-    }
-
-    if (diceCount > 1) {
-        for (let roll of diceSettings.getNormalDiceSides.values()) {
-            if ((diceCount - 1) * diceSettings.getMinNormalDice <= (target - roll)
-                && (target - roll) <= (diceCount - 1) * diceSettings.getMaxNormalDice
-            ) {
-                possibilities += getPossibilitiesReachValueNormalDice.value(target - roll, diceCount - 1)
-            }
-        }
-    } else { // diceCount == 1
-        if (diceSettings.getNormalDiceSides.includes(target)) {
-            possibilities += 1
-        }
-    }
-
-    return possibilities
-})
-
-const calculatePercentagePerNumber = (score: number) => computed<number>(() => {
-    let possibilities = 0;
-
-    // ToDo add (dis)advantage
-    for (let heroValue of diceSettings.getHeroDice.sides) {
-        if (diceSettings.d6Count > 0) {
-            possibilities += getPossibilitiesReachValueNormalDice.value(score - heroValue, diceSettings.d6Count)
-        } else if (heroValue == score) {
-            possibilities += 1
-        }
-    }
-
-    return possibilities
-})
 </script>
 
 <style scoped>
