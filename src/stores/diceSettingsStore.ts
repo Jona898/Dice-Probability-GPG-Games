@@ -38,14 +38,20 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   const getNormalDiceSides = computed<number[]>(() => getNormalDice.value.sides)
   const getHeroDiceSides = computed<number[]>(() => getHeroDice.value.sides)
 
-  const getMinNormalDice = computed<number>(() => getNormalDice.value.sides[0])
-  const getMaxNormalDice = computed<number>(() => getNormalDice.value.sides.slice(-1)[0])
-  const getMinHeroDice = computed<number>(() => getHeroDice.value.sides[0])
-  const getMaxHeroDice = computed<number>(() => getHeroDice.value.sides.slice(-1)[0])
+  const getMinNormalDice = computed<number>(() => getNormalDiceSides.value[0])
+  const getMaxNormalDice = computed<number>(() => getNormalDiceSides.value.slice(-1)[0])
+  const getMinHeroDice = computed<number>(() => getHeroDiceSides.value[0])
+  const getMaxHeroDice = computed<number>(() => getHeroDiceSides.value.slice(-1)[0])
 
   const totalPossibilities = computed(() => {
-    return getHeroDice.value.sides.length
-      * Math.pow(getNormalDice.value.sides.length, d6Count.value)
+    if (dis_advantageRoll.value == 'NORMAL') {
+      return getHeroDiceSides.value.length
+        * Math.pow(getNormalDiceSides.value.length, d6Count.value)
+    }
+    else {
+      return getHeroDiceSides.value.length * getHeroDiceSides.value.length
+        * Math.pow(getNormalDiceSides.value.length, d6Count.value)
+    }
   })
 
   const getPossibleRangeValues = computed<number[]>(() => {
@@ -94,15 +100,19 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     const diceCombinations = new Map<number, number>(
       getPossibleRangeValues.value.map((possibleValue) => [possibleValue, 0]))
 
+    for (let heroSideIndex = 0; heroSideIndex < getHeroDiceSides.value.length; heroSideIndex++) {
+      const heroDie = getHeroDiceSides.value[heroSideIndex];
 
-
-    //ToDo add (dis)advantage
-
-
-
-    for (const heroDie of getHeroDiceSides.value) {
-      for (const [normalDices, timesPossible] of getNormalDiceCombinations.value) {
+      for (const [normalDices, _timesPossible] of getNormalDiceCombinations.value) {
         const totalRolled = heroDie + normalDices
+        let timesPossible = _timesPossible
+
+        if (dis_advantageRoll.value == 'ADVANTAGE') {
+          timesPossible *= (2 * heroSideIndex) + 1 // any smaller value on the other die or a double
+        } else if (dis_advantageRoll.value == 'DISADVANTAGE') {
+          timesPossible *= (2 * (getHeroDiceSides.value.length - 1 - heroSideIndex)) + 1 // any larger value on the other die or a double
+        }
+
         diceCombinations.set(totalRolled, (diceCombinations.get(totalRolled) || 0) + timesPossible)
       }
     }
