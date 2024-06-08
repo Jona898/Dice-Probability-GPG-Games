@@ -22,15 +22,17 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     "D6": Dice.FromSides(6),
     "D10": Dice.FromSides(10),
     "D12": Dice.FromSides(12),
-    "TheOneRing": new Dice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20]),
-    "TheOneRingMiserable": new Dice([-20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20])
+    "D20": Dice.FromSides(20),
+    "TheOneRing_D6_Bad": new Dice([0, 0, 0, 4, 5, 6]),
+    "TheOneRingHero": new Dice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20]),
+    "TheOneRingHeroMiserable": new Dice([-20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20])
   })
 
   // Must be in keyof dices
   const normalDiceKind = ref<string>("D6")
 
   // Must be in keyof dices
-  const heroDiceKind = ref<string>("TheOneRing")
+  const heroDiceKind = ref<string>("TheOneRingHero")
 
   const getNormalDice = computed<Dice>(() => dices.value[normalDiceKind.value])
   const getHeroDice = computed<Dice>(() => dices.value[heroDiceKind.value])
@@ -55,14 +57,6 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   })
 
   const getPossibleRangeValues = computed<number[]>(() => {
-    console.log({
-      d6Count: d6Count.value,
-      getMinHeroDice: getMinHeroDice.value,
-      getMaxHeroDice: getMaxHeroDice.value,
-      getMinNormalDice: getMinNormalDice.value,
-      getMaxNormalDice: getMaxNormalDice.value,
-    })
-
     const minimum = getMinHeroDice.value + (d6Count.value * getMinNormalDice.value)
     const maximum = getMaxHeroDice.value + (d6Count.value * getMaxNormalDice.value)
 
