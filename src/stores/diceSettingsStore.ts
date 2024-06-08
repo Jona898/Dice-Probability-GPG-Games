@@ -27,6 +27,8 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     "TheOneRingHeroMiserable": new Dice([-20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20])
   })
 
+  const doesDiceNameExists = (name: string) => Object.prototype.hasOwnProperty.call(dices.value, name)
+
   // Must be in keyof dices
   const normalDiceKind = ref<string>("D6")
 
@@ -132,7 +134,7 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   return {
     dis_advantageRoll, setAdvantageRoll,
     normalDiceCount, setNormalDiceCount,
-    dices,
+    dices, doesDiceNameExists,
     selectedTargetValue,
     normalDiceKind, getNormalDice, getNormalDiceSides, getMinNormalDice, getMaxNormalDice,
     heroDiceKind, getHeroDice, getHeroDiceSides, getMinHeroDice, getMaxHeroDice,

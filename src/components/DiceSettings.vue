@@ -9,6 +9,7 @@
                         {{ diceName }}
                     </option>
                 </select>
+                Sides: {{ diceSettings.getHeroDiceSides }}
             </div>
 
             <fieldset>
@@ -43,6 +44,7 @@
                         {{ diceName }}
                     </option>
                 </select>
+                Sides: {{ diceSettings.getNormalDiceSides }}
             </div>
 
             <div>

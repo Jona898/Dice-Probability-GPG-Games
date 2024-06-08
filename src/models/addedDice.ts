@@ -9,7 +9,7 @@ export class Dice {
     }
 
     constructor(_sides: number[]) {
-        this.sides = _sides.sort((a, b) => a - b)
+        this.sides = [..._sides].sort((a, b) => a - b)
     }
 
     sides: number[]
