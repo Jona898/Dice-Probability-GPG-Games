@@ -15,7 +15,8 @@
             <th>acc %</th>
             <th class="tableBar">accumulated</th>
         </tr>
-        <tr v-for="[targetValue, combinationsValue] of diceSettings.combinationsTargetValue" :key="targetValue">
+        <tr v-for="[targetValue, combinationsValue] of diceSettings.combinationsTargetValue" :key="targetValue"
+            :class="{ trHighlighted: diceSettings.selectedTargetValue == targetValue }">
             <td>{{ targetValue }}</td>
             <!-- <td>{{ combinationsValue }}</td> -->
             <td>{{ Number(combinationsValue / diceSettings.totalPossibilities).toLocaleString(undefined, {
@@ -68,7 +69,11 @@ tr:nth-child(even) {
 }
 
 tr:hover {
-    background-color: coral;
+    background-color: #ff7f50cc;
+}
+
+tr.trHighlighted {
+    background-color: #ff7f50aa;
 }
 
 .tableBar {

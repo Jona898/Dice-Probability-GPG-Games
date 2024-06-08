@@ -7,15 +7,14 @@ export type Dis_AdvantageRoll = "NORMAL" | "ADVANTAGE" | "DISADVANTAGE"
 export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   const dis_advantageRoll = ref<Dis_AdvantageRoll>("NORMAL")
 
-
   function setAdvantageRoll(_advantageRoll: Dis_AdvantageRoll) {
     dis_advantageRoll.value = _advantageRoll
   }
 
-  const d6Count = ref(1)
+  const normalDiceCount = ref(1)
 
-  function setD6Count(count: number) {
-    d6Count.value = count
+  function setNormalDiceCount(count: number) {
+    normalDiceCount.value = count
   }
 
   const dices = ref<{ [key: string]: Dice }>({
@@ -34,6 +33,8 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   // Must be in keyof dices
   const heroDiceKind = ref<string>("TheOneRingHero")
 
+  const selectedTargetValue = ref<number>(0)
+
   const getNormalDice = computed<Dice>(() => dices.value[normalDiceKind.value])
   const getHeroDice = computed<Dice>(() => dices.value[heroDiceKind.value])
 
@@ -48,17 +49,17 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
   const totalPossibilities = computed(() => {
     if (dis_advantageRoll.value == 'NORMAL') {
       return getHeroDiceSides.value.length
-        * Math.pow(getNormalDiceSides.value.length, d6Count.value)
+        * Math.pow(getNormalDiceSides.value.length, normalDiceCount.value)
     }
     else {
       return getHeroDiceSides.value.length * getHeroDiceSides.value.length
-        * Math.pow(getNormalDiceSides.value.length, d6Count.value)
+        * Math.pow(getNormalDiceSides.value.length, normalDiceCount.value)
     }
   })
 
   const getPossibleRangeValues = computed<number[]>(() => {
-    const minimum = getMinHeroDice.value + (d6Count.value * getMinNormalDice.value)
-    const maximum = getMaxHeroDice.value + (d6Count.value * getMaxNormalDice.value)
+    const minimum = getMinHeroDice.value + (normalDiceCount.value * getMinNormalDice.value)
+    const maximum = getMaxHeroDice.value + (normalDiceCount.value * getMaxNormalDice.value)
 
     return range(maximum + 1 - minimum, minimum)
   })
@@ -83,7 +84,7 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
     diceCombinations.set(0, 1)//One Possibility to throw 0 dices and add 0
 
 
-    for (let diceCount = 1; diceCount <= d6Count.value; diceCount++) {
+    for (let diceCount = 1; diceCount <= normalDiceCount.value; diceCount++) {
       diceCombinations = getNormalDiceCombinationNextUp(diceCombinations)
     }
 
@@ -130,8 +131,9 @@ export const useDiceSettingsStore = defineStore('DiceSettings', () => {
 
   return {
     dis_advantageRoll, setAdvantageRoll,
-    d6Count, setD6Count,
+    normalDiceCount, setNormalDiceCount,
     dices,
+    selectedTargetValue,
     normalDiceKind, getNormalDice, getNormalDiceSides, getMinNormalDice, getMaxNormalDice,
     heroDiceKind, getHeroDice, getHeroDiceSides, getMinHeroDice, getMaxHeroDice,
     totalPossibilities, getPossibleRangeValues, getNormalDiceCombinations, combinationsTargetValue: getCombinedDiceCombinations, getCombinedDiceCombinationsAccumulatedOver

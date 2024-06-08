@@ -46,10 +46,21 @@
             </div>
 
             <div>
-                <label for="D6Count">Number Normal Dice </label>
-                <input type="range" name="D6CountRange" id="D6CountRange" min="0" max="6"
-                    v-model="diceSettings.d6Count">
-                <input type="number" name="D6Count" id="D6Count" v-model="diceSettings.d6Count">
+                <label for="NormalDiceCount">Number Normal Dice </label>
+                <input type="range" name="normalDiceCountRange" id="normalDiceCountRange" min="0" max="6"
+                    v-model="diceSettings.normalDiceCount">
+                <input type="number" name="NormalDiceCount" id="NormalDiceCount" v-model="diceSettings.normalDiceCount">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Target Value</legend>
+            <div>
+                <label for="selectedTargetValue">Target Number to Highlight </label>
+                <input type="range" name="selectedTargetValueRange" id="selectedTargetValueRange" min="0" max="30"
+                    v-model="diceSettings.selectedTargetValue">
+                <input type="number" name="selectedTargetValue" id="selectedTargetValue"
+                    v-model="diceSettings.selectedTargetValue">
             </div>
         </fieldset>
     </div>
