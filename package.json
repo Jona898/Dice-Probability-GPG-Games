@@ -1,16 +1,19 @@
 {
-  "name": "dice-probability",
+  "name": "dice-probability-rpg-games",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 4000",
     "devHost": "vite --host",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "check-build": "run-p lint type-check build-only",
+    "serve-dist": "npx live-server dist --port=4000 --no-browser --entry-file=index.html --proxy=/Dice-Probability-RPG-Games:http://127.0.0.1:4000",
+    "serve-prod": "run-p check-build serve-dist"
   },
   "dependencies": {
     "pinia": "^2.1.7",
